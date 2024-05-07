@@ -4,10 +4,10 @@ int player2Score = 0;
 float ballX, ballY;
 float ballSpeedX = 3;
 float ballSpeedY = 3;
-float ballSize = 20;
+float ballSize = 30;
 
-float paddleWidth = 20;
-float paddleHeight = 100;
+float paddleWidth = 30;
+float paddleHeight = 200;
 
 float player1X = 50;
 float player1Y;
