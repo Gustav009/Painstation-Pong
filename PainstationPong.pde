@@ -20,7 +20,8 @@ boolean upKey, downKey;
 boolean[] boxes = new boolean[6]; // 0: Blue, 1: Red, 2: Yellow for player 1; 3: Blue, 4: Red, 5: Yellow for player 2
 
 void setup() {
-  size(1000, 600);
+  fullScreen();
+  frameRate(120);
   player1Y = height / 2;
   player2X = width - 50;
   player2Y = height / 2;
