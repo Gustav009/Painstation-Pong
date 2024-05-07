@@ -9,7 +9,7 @@ float ballSize = 30;
 float paddleWidth = 30;
 float paddleHeight = 200;
 
-float player1X = 50;
+float player1X = 150;
 float player1Y;
 float player2X;
 float player2Y;
