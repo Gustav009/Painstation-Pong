@@ -2,8 +2,8 @@ int player1Score = 0;
 int player2Score = 0;
 
 float ballX, ballY;
-float ballSpeedX = 3;
-float ballSpeedY = 3;
+float ballSpeedX = 4;
+float ballSpeedY = 4;
 float ballSize = 30;
 
 float paddleWidth = 30;
