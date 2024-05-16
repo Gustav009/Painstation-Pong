@@ -1,3 +1,7 @@
+import processing.serial.*;
+
+Serial port;
+
 int state = 0;
 Game game;
 
@@ -5,10 +9,12 @@ void setup() {
   game = new Game();
   fullScreen();
   game.setupGame();
+  port = new Serial(this, "/dev/cu.usbmodem1201", 9600); // Erstat "/dev/cu.usbmodem1201" med din serial port fra arduino IDE
+
 }
 
 void draw() {
-  background(220);
+  background(200);
   
   // Tegn knapperne
   fill(255);
