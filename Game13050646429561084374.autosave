@@ -1,0 +1,221 @@
+
+class Game {
+int player1Score = 0;
+int player2Score = 0;
+
+PVector ballPos;
+PVector ballSpeed;
+float ballSize;
+float ballSpeedMagnitude;
+
+float paddleWidth = 30;
+float paddleHeight = 200;
+
+int boxWidth = 50; 
+int boxHeight = 150; 
+
+float player1X = 150;
+float player1Y;
+float player2X = width - 150;
+float player2Y;
+
+boolean wKey, sKey;
+boolean upKey, downKey;
+
+boolean[] boxes = new boolean[6]; // 0: Blue, 1: Red, 2: Yellow for player 1; 3: Blue, 4: Red, 5: Yellow for player 2
+
+boolean gamestarted = false;
+  
+float speedIncrease = 1; // Hastighedsforøgelse ved paddle-kollision
+  
+  Game() {
+
+}
+  
+  public void setupGame() {
+  fullScreen();
+  frameRate(120);
+  player1Y = height / 2;
+  player2Y = height / 2;
+  ballPos = new PVector(width/2,height/2);
+  ballSize = 20;
+  ballSpeedMagnitude = 5;
+  ballSpeed = PVector.random2D() .mult(ballSpeedMagnitude);
+
+  
+  rectMode(CENTER);
+ 
+  for (int i = 0; i < boxes.length; i++) {
+    boxes[i] = true;
+  }
+  gamestarted = true;
+}
+
+public void updateGame() {
+  if(gamestarted == true) {
+  background(0);
+  handleInput();
+  moveBall();
+  drawPaddles();
+  drawBall();
+  checkCollision();
+  checkBoxCollision();
+  displayScores();
+  drawBoxes();
+  }
+}
+
+void handleInput() {
+  if (keyPressed) {
+    if (key == 'w') {
+      wKey = true;
+    } else if (key == 's') {
+      sKey = true;
+    }
+  } else {
+    wKey = false;
+    sKey = false;
+  }
+  
+  if (keyPressed) {
+    if (keyCode == UP) {
+      upKey = true;
+    } else if (keyCode == DOWN) {
+      downKey = true;
+    }
+  } else {
+    upKey = false;
+    downKey = false;
+  }
+}
+void moveBall(){
+  ballPos.add(ballSpeed);
+}
+
+void drawPaddles() {
+  fill(255);
+  if (wKey && player1Y - paddleHeight / 2 > 0) {
+    player1Y -= 5;
+  }
+  if (sKey && player1Y + paddleHeight / 2 < height) {
+    player1Y += 5;
+  }
+  rect(player1X, player1Y, paddleWidth, paddleHeight);
+  
+  if (upKey && player2Y - paddleHeight / 2 > 0) {
+    player2Y -= 5;
+  }
+  if (downKey && player2Y + paddleHeight / 2 < height) {
+    player2Y += 5;
+  }
+  rect(player2X, player2Y, paddleWidth, paddleHeight);
+}
+
+void drawBall() {
+  fill(255);
+  circle(ballPos.x, ballPos.y, ballSize);
+  
+}
+
+void checkCollision() {
+ // Wall collision
+    if (ballPos.y < ballSize / 2 || ballPos.y > height - ballSize / 2) {
+    ballSpeed.y *= -1;
+    }
+
+ // Paddle collision for player 1
+    if (ballPos.x - ballSize / 2 < player1X + paddleWidth / 2 &&
+        ballPos.y > player1Y - paddleHeight / 2 &&
+        ballPos.y < player1Y + paddleHeight / 2 &&
+        ballSpeed.x < 0) {
+        ballSpeed.x *= -1;
+        increaseSpeed();
+        }
+
+ // Paddle collision for player 2
+    if (ballPos.x + ballSize / 2 > player2X - paddleWidth / 2 &&
+        ballPos.y > player2Y - paddleHeight / 2 &&
+        ballPos.y < player2Y + paddleHeight / 2 &&
+        ballSpeed.x > 0) {
+        ballSpeed.x *= -1;
+        increaseSpeed();
+        }
+
+ // Scoring
+    if (ballPos.x < 0) {
+        player2Score++;
+        resetBall();
+   }
+
+    if (ballPos.x > width) {
+        player1Score++;
+        resetBall();
+   }
+}
+
+void increaseSpeed(){
+     float speed = ballSpeed.mag() + speedIncrease;
+     ballSpeed.setMag(speed);
+}
+
+void checkBoxCollision() {
+    // Check for box collisions for player 1
+    if (ballPos.x < player1X && ballPos.x > player1X - boxWidth) {
+        if (ballPos.y > height / 3 - boxHeight / 2 && ballPos.y < height / 3 + boxHeight / 2 && boxes[0]) {
+            boxes[0] = false;
+        } else if (ballPos.y > 2 * height / 3 - boxHeight / 2 && ballPos.y < 2 * height / 3 + boxHeight / 2 && boxes[1]) {
+            boxes[1] = false;
+        } else if (ballPos.y > height - 100 - boxHeight / 2 && ballPos.y < height - 100 + boxHeight / 2 && boxes[2]) {
+            boxes[2] = false;
+        }
+    }
+
+    // Check for box collisions for player 2
+    if (ballPos.x > player2X && ballPos.x < player2X + boxWidth) {
+        if (ballPos.y > height / 3 - boxHeight / 2 && ballPos.y < height / 3 + boxHeight / 2 && boxes[3]) {
+            boxes[3] = false;
+        } else if (ballPos.y > 2 * height / 3 - boxHeight / 2 && ballPos.y < 2 * height / 3 + boxHeight / 2 && boxes[4]) {
+            boxes[4] = false;
+        } else if (ballPos.y > height - 100 - boxHeight / 2 && ballPos.y < height - 100 + boxHeight / 2 && boxes[5]) {
+            boxes[5] = false;
+        }
+    }
+}
+
+
+void displayScores() {
+  fill(255);
+  textSize(32);
+  textAlign(CENTER);
+  text(player1Score, width / 4, 50);
+  text(player2Score, 3 * width / 4, 50);
+}
+
+void drawBoxes() {
+    fill(0, 0, 255);
+    if (boxes[0]) rect(player1X - 100, height / 3 - boxHeight / 2, boxWidth, boxHeight);
+    fill(255, 0, 0);
+    if (boxes[1]) rect(player1X - 100, 2 * height / 3 - boxHeight / 2, boxWidth, boxHeight);
+    fill(255, 255, 0);
+    if (boxes[2]) rect(player1X - 100, height - 100 - boxHeight / 2 + boxHeight / 2, boxWidth, boxHeight);
+
+    fill(0, 0, 255);
+    if (boxes[3]) rect(player2X + 50, height / 3 - boxHeight / 2, boxWidth, boxHeight);
+    fill(255, 0, 0);
+    if (boxes[4]) rect(player2X + 50, 2 * height / 3 - boxHeight / 2, boxWidth, boxHeight);
+    fill(255, 255, 0);
+    if (boxes[5]) rect(player2X + 50, height - 100 - boxHeight / 2 + boxHeight / 2, boxWidth, boxHeight);
+}
+
+
+void resetBall() {
+        ballPos.x = width / 2;
+        ballPos.y = height / 2;
+        ballSpeed = PVector.random2D().mult(ballSpeedMagnitude);
+
+        // Reset boxes
+        for (int i = 0; i < boxes.length; i++) {
+            boxes[i] = true;
+        }
+    }
+}

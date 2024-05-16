@@ -12,6 +12,9 @@ class Game {
   float paddleWidth = 30;
   float paddleHeight = 200;
   int distanceFromEdge = 120; // Afstand fra kanten
+  
+  int boxWidth = 50;
+  int boxHeight = 150
 
   int[] joystickValues = new int[2]; // Array til at gemme joysticks' y-akseværdier
   float maxSpeed = 5.0; // Maksimal hastighed for kasserne
@@ -39,6 +42,8 @@ class Game {
     player2Y = height/2;
     ballX = width / 2;
     ballY = height / 2;
+    
+    
     for (int i = 0; i < boxes.length; i++) {
       boxes[i] = true;
     }
@@ -52,6 +57,7 @@ class Game {
       drawBall();
       moveBall();
       checkCollision();
+      checkBoxCollision();
       displayScores();
       drawBoxes();
       if (port.available() > 0) {
@@ -129,22 +135,29 @@ class Game {
   }
 
   void checkCollision() {
-    if (ballY < 0 || ballY > height) {
-      ballSpeedY *= -1;
+ // Wall collision
+    if (ballY < ballSize / 2 || ballY > height - ballSize / 2) {
+    ballSpeedY = -1;
     }
 
-    if (ballX < player1X + paddleWidth && ballY > player1Y - paddleHeight / 2 && ballY < player1Y + paddleHeight / 2) {
-      ballSpeedX *= -1;
-      int colorIndex = floor(random(3));
-      collectBox(colorIndex);
-    }
+ // Paddle collision for player 1
+    if (ballX - ballSize / 2 < player1X + paddleWidth / 2 &&
+        ballY > player1Y - paddleHeight / 2 &&
+        ballY < player1Y + paddleHeight / 2 &&
+        ballSpeedX < 0) {
+        ballSpeedX= -1;
+       
+        }
 
-    if (ballX > player2X - paddleWidth && ballY > player2Y - paddleHeight / 2 && ballY < player2Y + paddleHeight / 2) {
-      ballSpeedX *= -1;
-      int colorIndex = floor(random(3)) + 3;
-      collectBox(colorIndex);
-    }
-
+ // Paddle collision for player 2
+    if (ballX + ballSize / 2 > player2X - paddleWidth / 2 &&
+        ballY > player2Y - paddleHeight / 2 &&
+        ballY < player2Y + paddleHeight / 2 &&
+        ballSpeedX > 0) {
+        ballSpeedX *= -1;
+       
+        }
+    //Scoring
     if (ballX < 0) {
       player2Score++;
       resetBall();
@@ -166,38 +179,50 @@ class Game {
 
   void drawBoxes() {
     fill(0, 0, 255);
-    if (boxes[0]) rect(player1X - 100, height / 3 - 50, 50, 50);
+    if (boxes[0]) rect(player1X - 100, height / 3 - boxHeight / 2, boxWidth, boxHeight);
     fill(255, 0, 0);
-    if (boxes[1]) rect(player1X - 100, 2 * height / 3 - 25, 50, 50);
+    if (boxes[1]) rect(player1X - 100, 2 * height / 3 - boxHeight / 2, boxWidth, boxHeight);
     fill(255, 255, 0);
-    if (boxes[2]) rect(player1X - 100, height - 100, 50, 50);
+    if (boxes[2]) rect(player1X - 100, height - 100 - boxHeight / 2 + boxHeight / 2, boxWidth, boxHeight);
 
     fill(0, 0, 255);
-    if (boxes[3]) rect(player2X + 50, height / 3 - 50, 50, 50);
+    if (boxes[3]) rect(player2X + 50, height / 3 - boxHeight / 2, boxWidth, boxHeight);
     fill(255, 0, 0);
-    if (boxes[4]) rect(player2X + 50, 2 * height / 3 - 25, 50, 50);
+    if (boxes[4]) rect(player2X + 50, 2 * height / 3 - boxHeight / 2, boxWidth, boxHeight);
     fill(255, 255, 0);
-    if (boxes[5]) rect(player2X + 50, height - 100, 50, 50);
-  }
+    if (boxes[5]) rect(player2X + 50, height - 100 - boxHeight / 2 + boxHeight / 2, boxWidth, boxHeight);
+}
 
-  void collectBox(int index) {
-    if (boxes[index]) {
-      boxes[index] = false;
-      // Change ball color based on the box color
-      if (index == 0 || index == 3) {
-        fill(0, 0, 255);
-      } else if (index == 1 || index == 4) {
-        fill(255, 0, 0);
-      } else {
-        fill(255, 255, 0);
-      }
-      // Draw the collected box at the ball position
-      rect(ballX - 10, ballY - 10, 20, 20);
+  void checkBoxCollision() {
+    // Check for box collisions for player 1
+    if (ballX < player1X && ballPos.x > player1X - boxWidth) {
+        if (ballY > height / 3 - boxHeight / 2 && ballY < height / 3 + boxHeight / 2 && boxes[0]) {
+            boxes[0] = false;
+        } else if (ballY > 2 * height / 3 - boxHeight / 2 && ballY < 2 * height / 3 + boxHeight / 2 && boxes[1]) {
+            boxes[1] = false;
+        } else if (ballY > height - 100 - boxHeight / 2 && ballY < height - 100 + boxHeight / 2 && boxes[2]) {
+            boxes[2] = false;
+        }
     }
-  }
+
+    // Check for box collisions for player 2
+    if (ballX > player2X && ballX < player2X + boxWidth) {
+        if (ballY > height / 3 - boxHeight / 2 && ballY < height / 3 + boxHeight / 2 && boxes[3]) {
+            boxes[3] = false;
+        } else if (ballY > 2 * height / 3 - boxHeight / 2 && ballY < 2 * height / 3 + boxHeight / 2 && boxes[4]) {
+            boxes[4] = false;
+        } else if (ballY > height - 100 - boxHeight / 2 && ballY < height - 100 + boxHeight / 2 && boxes[5]) {
+            boxes[5] = false;
+        }
+    }
+}
 
   void resetBall() {
     ballX = width / 2;
     ballY = height / 2;
+    
+    //Reset boxes
+    for (int i = 0; i < boxes.length; i++) {
+     boxes[i] = true;
   }
 }
